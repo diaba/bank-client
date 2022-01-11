@@ -1,16 +1,18 @@
-import logo from './logo.svg';
+
 import './App.css';
-import AppBar  from './';
+import AppBar  from './component/Navbar';
+import Register  from './component/Register';
+
 
 
 function App() {
   return (
+  
     <div className="App">
-      <AppBar>
-
-      </AppBar>
-      this is 
+      <AppBar />
+        <Register />
     </div>
+  
   );
 }
 

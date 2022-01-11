@@ -1,107 +1,75 @@
-import React, { useState } from 'react';
-import { setUserSession } from './component/Utils/Common';
+import React, { useState, Component } from 'react';
 
-function Login(props) {
-  const [loading, setLoading] = useState(false);
-  const username = useFormInput('');
-  const password = useFormInput('');
-  const [error, setError] = useState(null);
+class Login extends Component {
+  constructor(props) {
+      super(props)
 
-  // handle button click of login form
-  const handleLogin = () => {
-    setError(null);
-    setLoading(true);
-
-
-
-
-
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+      this.state ={
+          username:'',
+          password:''
+      }
+  }
+  changeHandler= e =>{
+      this.setState({ [e.target.name]: e.target.value})
+  }
+  submitHandler= e =>{
+      e.preventDefault()
+      console.log(this.state);
+      
+      var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
 
 var raw = JSON.stringify({
-  "email": data.get('email'),
-  "password": data.get('password')
-
+"email": this.state.username,
+"password": this.state.password
 });
 
-
 var requestOptions = {
-  method: 'POST',
-  headers: myHeaders,
-  body: raw,
-  redirect: 'follow'
+method: 'POST',
+headers: myHeaders,
+body: raw,
+redirect: 'follow'
 };
-  
-  fetch("http://localhost:9092/auth/users/login", requestOptions)
-    .then(response => 
-      {
-        console.log(response)
-        if (response.ok){
-          return response.json().then((result) =>{
-            console.warn("result", result)
-            localStorage.setItem('login', JSON.stringify({
-              login:true,
-              token:result.jwt
-            }))
-          })
-        }
-       throw Error(response.status)
-      }
+
+fetch("http://localhost:9092/auth/users/login", requestOptions)
+.then(response => response.text())
+.then(result => {
+  this.props.history.push('/dashboard')
+  localStorage.setItem("token",result.jwt)
+  console.log("token",result.token)
+  if (result.ok){
+    return result.json().then((result) =>{
+      console.log("result ok", result.jwt)
+      localStorage.setItem('login', JSON.stringify({
+        login:true,
+        token:result.jwt
+      }));
       
-      )
-    .then(result => {
-  
-        setLoading(false);
-        setUserSession(result.token, "response.data.user");
-    //   localStorage.setItem("token",result.token)
-      props.history.push('/dashboard');
     })
-    .catch(error => {
-        setLoading(false);
-        console.log('error', error);
-    });
-  }
-
-    // axios.post('http://localhost:4000/users/signin',
-    //  { username: username.value, password: password.value }).then(response => {
-    //   setLoading(false);
-    //   setUserSession(response.data.token, response.data.user);
-    //   props.history.push('/dashboard');
-    // }).catch(error => {
-    //   setLoading(false);
-    //   if (error.response.status === 401) setError(error.response.data.message);
-    //   else setError("Something went wrong. Please try again later.");
-    // });
+  }})
+.catch(error => console.log('error', error));
+}
   
-
+  render() { 
+      const { username, password } = this.state
   return (
     <div>
       Login<br /><br />
-      <div>
-        Username<br />
-        <input type="text" {...username} autoComplete="new-password" />
-      </div>
-      <div style={{ marginTop: 10 }}>
-        Password<br />
-        <input type="password" {...password} autoComplete="new-password" />
-      </div>
-      {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
-      <input type="button" value={loading ? 'Loading...' : 'Login'} onClick={handleLogin} disabled={loading} /><br />
+     
+      <form onSubmit={ this.submitHandler }>
+  <label>
+    Name:
+    <input type="text" name="username" value = { username } onChange={ this.changeHandler} />
+  </label>
+  <label>
+    password:
+    <input type="text" name="password" value = { password }  onChange={ this.changeHandler}/>
+  </label>
+  <input type="submit" value="Submit" />
+</form>
     </div>
   );
 }
 
-const useFormInput = initialValue => {
-  const [value, setValue] = useState(initialValue);
-
-  const handleChange = e => {
-    setValue(e.target.value);
-  }
-  return {
-    value,
-    onChange: handleChange
-  }
 }
-
 export default Login;

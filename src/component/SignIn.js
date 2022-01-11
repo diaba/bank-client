@@ -37,7 +37,7 @@ export default function SignIn() {
       password: data.get('password'),
     });
 
-const login = ()=>{
+const login = (props)=>{
   
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -59,14 +59,15 @@ var requestOptions = {
   fetch("http://localhost:9092/auth/users/login", requestOptions)
     .then(response => 
       {
-        console.log(response)
+        console.log("response")
         if (response.ok){
           return response.json().then((result) =>{
-            console.warn("result", result)
-            localStorage.setItem('login', JSON.stringify({
+            console.log("result", result)
+              localStorage.setItem('login', JSON.stringify({
               login:true,
-              token:result.jwt
-            }))
+              token:result
+            }));
+            // props.history.push('/dashboard')
           })
         }
        throw Error(response.status)
@@ -74,7 +75,6 @@ var requestOptions = {
       
       )
     .then(result => {
-  
       console.log(result);
       localStorage.setItem("token",result.token)
       alert("con")
@@ -122,8 +122,7 @@ var requestOptions = {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
-           
+              autoComplete="current-password"       
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
